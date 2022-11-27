@@ -1,60 +1,108 @@
 import React, {useState, KeyboardEvent} from 'react';
 import './App.css';
 import styled from "styled-components";
-import { keyframes } from 'styled-components'
+import {keyframes} from 'styled-components'
+import {Header} from "./pages/Header";
+import {Route, Routes} from "react-router-dom";
+import {MainPage} from "./pages/MainPage";
+
+type ObjType = {
+    santaName: string | null
+    recipientName: string | null
+}
 
 function App() {
-    const [gifts, setGifts] = useState<Array<string | null>>([])
-    const [gift, setGift] = useState<string>('')
-    const [pickedGift, setPickedGift] = useState<string | null>()
+    const [names, setnames] = useState<Array<string | null>>([])
+    const [fullName, setFullName] = useState<string>('')
+    const [pair, setPair] = useState<Array<ObjType>>([])
+
     const onKeyDownHandler = (el: KeyboardEvent<HTMLDivElement>) => {
-        el.key === 'Enter' && gift &&
-        setGifts([...gifts, gift])
-        setGift('')
+        el.key === 'Enter' && fullName &&
+        setnames([...names, fullName])
+        setFullName('')
     }
+    const secretSantaNames = [...names].sort(() => 0.5 - Math.random())
+
     const giftHandler = () => {
-        setPickedGift(gifts[Math.floor(Math.random() * gifts.length)])
+        //daily-dev-tips.com/posts/public-solving-secret-santa-in-javascript/
+        setPair([])
+        const res =  names.reduce((acc, recipientName) => {
+            let santaName = secretSantaNames.filter((secretSantaName) => secretSantaName !== recipientName)[0]
+            secretSantaNames.splice(secretSantaNames.findIndex((i) => i === santaName), 1);
+            if (santaName === undefined) {
+                // Edge case where last person was assigned to their own name
+                // Simply swap with the first one.
+                santaName = acc[0].santaName;
+                acc[0].santaName = recipientName;
+            }
+            acc.push({recipientName, santaName})
+            return acc
+        }, [] as ObjType []);
+        setPair(res)
     }
+
+
 
     return (
-        <Container>
+        <>
+        <Header/>
+            <Routes>
+                <Route path='/main' element={<MainPage/>}/>
+            </Routes>
 
-            <SnowGlobe></SnowGlobe>
-            <Base></Base>
-            <BaseTop></BaseTop>
-            <BaseBottom></BaseBottom>
-            <House>
-                <Roof></Roof>
-                <Window></Window>
-                <Chimmey>
-                </Chimmey>
-                <Snow>
-                    <SnowFlake></SnowFlake>
-                    <SnowFlake2></SnowFlake2>
+        {/*<Container>*/}
+        {/*    <SnowGlobe></SnowGlobe>*/}
+        {/*    <Base></Base>*/}
+        {/*    <BaseTop></BaseTop>*/}
+        {/*    <BaseBottom></BaseBottom>*/}
+        {/*    <House>*/}
+        {/*        <Roof></Roof>*/}
+        {/*        <Window></Window>*/}
+        {/*        <Chimmey>*/}
+        {/*        </Chimmey>*/}
+        {/*        <Snow>*/}
+        {/*            <SnowFlake></SnowFlake>*/}
+        {/*            <SnowFlake2></SnowFlake2>*/}
 
-                </Snow>
-            </House>
-            <Trees></Trees>
+        {/*        </Snow>*/}
+        {/*    </House>*/}
+        {/*    <Trees></Trees>*/}
 
-            <input
+        {/*    <input*/}
 
-                onKeyDown={onKeyDownHandler}
-                onChange={(e) => setGift(e.currentTarget.value)}/>
-            <ul>{gifts.map((el, index) => {
-                return (
-                    <li key={index}>{el}</li>
-                )
-            })}</ul>
-            <button onClick={giftHandler}>pick</button>
-            <span>{pickedGift}</span>
+        {/*        onKeyDown={onKeyDownHandler}*/}
+        {/*        onChange={(e) => setFullName(e.currentTarget.value)}/>*/}
+        {/*    <ul color={'white'}>{names.map((el, index) => {*/}
+        {/*        return (*/}
+        {/*            <LiWrapper color={'white'} key={index}>{el}</LiWrapper>*/}
+        {/*        )*/}
+        {/*    })}</ul>*/}
+        {/*    <button onClick={giftHandler}>pick</button>*/}
+        {/*    <ul>{pair.map((el,index)=>{*/}
+        {/*        return(*/}
+        {/*            <>*/}
+        {/*                <LiWrapper key={index}>{el.santaName}+{el.recipientName}</LiWrapper>*/}
+        {/*            </>*/}
 
-
-        </Container>
+        {/*        )*/}
+        {/*    })}</ul>*/}
+        {/*    <span>{}</span>*/}
+        {/*</Container>*/}
+        </>
     );
 }
+const LiWrapper = styled.li`
+color: white;
+`
 const breatheAnimation = keyframes`
-0% {transform: translateY(-50px);opacity:0.9;}
-100% {transform: translateY(100px);opacity:0.2;}
+  0% {
+    transform: translateY(-50px);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(100px);
+    opacity: 0.2;
+  }
 `
 
 const Container = styled.div`
@@ -69,7 +117,7 @@ const SnowGlobe = styled.div`
   background-color: #ebeaf0;
   border: 2px solid #d7d5e1;
   z-index: -30;
-  
+
 
   :before {
     position: absolute;
@@ -82,6 +130,7 @@ const SnowGlobe = styled.div`
     background: #ffffff
   }
 ;
+
   :after {
     position: absolute;
     content: '';
@@ -90,14 +139,15 @@ const SnowGlobe = styled.div`
     border-radius: 50%;
     top: 17px;
     background: #ebeaf0;
-  };
+  }
+;
 
 `
 const Snow = styled.div`
   position: absolute;
-  z-index:6;
+  z-index: 6;
 `
-const SnowFlake =styled.div`
+const SnowFlake = styled.div`
   top: -130px;
   left: 60px;
   position: absolute;
@@ -113,7 +163,7 @@ const SnowFlake =styled.div`
   10px 40px #ffffff, -30px 40px #ffffff, -60px 20px #ffffff, -70px 40px #ffffff,
   -90px 0px #ffffff
 `
-const SnowFlake2 =styled.div`
+const SnowFlake2 = styled.div`
   top: -110px;
   left: 50px;
   position: absolute;
@@ -140,6 +190,7 @@ const Base = styled.div`
   margin-top: -60px;
   z-index: -10;
   align-self: center;
+
   :after {
     position: absolute;
     content: "";
@@ -149,7 +200,8 @@ const Base = styled.div`
     height: 50px;
     border-radius: 125px / 25px;
     background: #5e1620;
-  };
+  }
+;
 `
 const BaseTop = styled.div`
   background-color: #ffffff;
@@ -162,7 +214,7 @@ const BaseTop = styled.div`
   z-index: -10;
   align-self: center;
 `
-const BaseBottom=styled.div`
+const BaseBottom = styled.div`
   position: absolute;
   background-color: #9d2535;
   width: 275px;
@@ -174,60 +226,66 @@ const BaseBottom=styled.div`
 `
 const House = styled.div`
   position: absolute;
-  z-index:2;
+  z-index: 2;
   width: 80px;
   height: 40px;
   background-color: #aca081;
   box-shadow: -40px 0 #8d826c;
-  top:200px;
-  left:95px;
+  top: 200px;
+  left: 95px;
+
   :before {
-    content:"";
+    content: "";
     position: absolute;
     background-color: #aca081;
-    width:57.5px;
+    width: 57.5px;
     height: 57.5px;
     transform: rotate(45deg);
-    top:-28px;
-    left:11px;
-  };
+    top: -28px;
+    left: 11px;
+  }
+;
+
   :after {
-    content:"";
+    content: "";
     position: absolute;
     background-color: #e7e7e7;
     box-shadow: -40px 0 #c0c0c0;
     width: 80px;
-    height:20px;
-    top:22px;
+    height: 20px;
+    top: 22px;
   }
-  
+
 `
-const Roof =styled.div`
+const Roof = styled.div`
   position: absolute;
-  background-color: rgba(0,0,0,0.2);
-  width:40px;
+  background-color: rgba(0, 0, 0, 0.2);
+  width: 40px;
   height: 5px;
-  left:-40px;
+  left: -40px;
+
   :before {
-    content:"";
+    content: "";
     position: absolute;
     background-color: white;
     border-radius: 5px 0px 0px 5px;
-    width:50px;
+    width: 50px;
     height: 43px;
-    top:-43px;
+    top: -43px;
     transform: skew(-45deg);
-    left:13px;}
-    :after {
-      content:"";
-      position: absolute;
-      transform: skew(45deg);
-      background-color: white;
-      width: 7px;
-      height: 43px;
-      border-radius: 0 2px 5px 0;
-      top:-43px;
-      left:98px;
+    left: 13px;
+  }
+
+  :after {
+    content: "";
+    position: absolute;
+    transform: skew(45deg);
+    background-color: white;
+    width: 7px;
+    height: 43px;
+    border-radius: 0 2px 5px 0;
+    top: -43px;
+    left: 98px;
 `
 const Window = styled.div`
   position: absolute;
@@ -260,24 +318,25 @@ const Window = styled.div`
 const Chimmey = styled.div`
   position: absolute;
   background-color: #8d826c;
-  width:15px;
-  height:30px;
-  top:-45px;
-  left:-25px;
+  width: 15px;
+  height: 30px;
+  top: -45px;
+  left: -25px;
   box-shadow: 0 -5px #625f56;
-  z-index:3;
+  z-index: 3;
+
   :before {
-    content:"";
+    content: "";
     position: absolute;
-    width:10px;
+    width: 10px;
     height: 5px;
     background-color: #bfaf94;
-    border-radius:10px;
+    border-radius: 10px;
     top: 15px;
     left: 60px;
-    box-shadow: 5px 10px #bfaf94, -8px 15px #bfaf94, 
-    -28px 25px #bfaf94, -32px 35px #bfaf94, 20px 17px #bfaf94, 
-    30px 30px #bfaf94, 32px 40px #bfaf94,-28px 44px #bfaf94, 
+    box-shadow: 5px 10px #bfaf94, -8px 15px #bfaf94,
+    -28px 25px #bfaf94, -32px 35px #bfaf94, 20px 17px #bfaf94,
+    30px 30px #bfaf94, 32px 40px #bfaf94, -28px 44px #bfaf94,
     -50px 37px #7d7360, -55px 44px #7d7360, -70px 41px #7d7360;
 `
 

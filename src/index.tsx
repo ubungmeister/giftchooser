@@ -4,16 +4,27 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { createGlobalStyle } from 'styled-components'
+import {BrowserRouter} from "react-router-dom";
+
+
 const Global = createGlobalStyle`
+  //body {
+  //  background-color: #091612;
+  //  height: 100vh;
+  //  width: 100vw;
+  //  display: flex;
+  //  justify-content: center;
+  //  align-items: center;
+  //  margin: 0;
+  //  font-family: "Sofia", sans-serif;
+  //}
+  * {
+    box-sizing: border-box;
+  }
   body {
-    background-color: #091612;
-    height: 100vh;
-    width: 100vw;
-    display: flex;
+    max-width: 100%;
     justify-content: center;
-    align-items: center;
-    margin: 0;
-    font-family: "Sofia", sans-serif;
+    margin: auto;
   }
 
 `
@@ -24,10 +35,10 @@ const root = ReactDOM.createRoot(
 );
 
 root.render(
-    <>
+    <BrowserRouter>
         <App />
         <Global />
-    </>
+    </BrowserRouter>
 
 );
 
